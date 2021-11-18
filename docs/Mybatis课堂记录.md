@@ -302,5 +302,36 @@ Could not find resource com/kaung/dao/UserMapper.xml
   }
   ```
 
-  
+你们可以能会遇到的问题：
+
+1. 配置文件没有注册
+2. 绑定接口错误。
+3. 方法名不对
+4. 返回类型不对
+5. Maven导出资源问题
+
+# 3、CURD
+
+### 命名空间
+
+### 1、namespace
+
+namespace中的包名要和 Dao/mapper 接口的包名一致！
+
+### 2、select
+选择，查询语句；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
