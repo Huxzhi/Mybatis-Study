@@ -312,9 +312,9 @@ Could not find resource com/kaung/dao/UserMapper.xml
 
 # 3、CURD
 
-### 命名空间
-
 ### 1、namespace
+
+命名空间
 
 namespace中的包名要和 Dao/mapper 接口的包名一致！
 
@@ -322,15 +322,85 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 
 选择，查询语句；
 
+- id：就是对应的namespace中的方法名；
+- resultType：Sql语句执行的返回值！
+- parameterType：参数类型！
 
 
 
+1. 编写接口
 
+   ```java
+   //根据ID查询用户
+   User getUserById(int id);
+   ```
 
+2. 编写对应的mapper中的sql语句
 
+   ```xml
+   <select id="getUserById" parameterType="int" resultType="com.kuang.pojo.User">
+           select * from mybatis.user where id = #{id}
+   </select>
+   ```
 
+3. 测试
 
+   ```java
+   @Test
+   public void getUserById() {
+       SqlSession sqlSession = MybatisUtils.getSqlSession();
+       UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+       User userById = userMapper.getUserById(1);
+       System.out.println(userById);
+       sqlSession.close();
+   }
+   ```
 
+   
+
+### 3、Insert
+
+```xml
+<!--对象中的属性，可以直接取出来-->
+<insert id="addUser" parameterType="com.kuang.pojo.User">
+    insert into mybatis.user (id, name, pwd)
+    values (#{id}, #{name}, #{pwd})
+</insert>
+```
+
+### 4、Update
+
+```xml
+<update id="updateUser" parameterType="com.kuang.pojo.User">
+    update mybatis.user
+    set name=#{name },
+    pwd=#{pwd}
+    where id = #{id};
+</update>
+```
+
+### 5、Delete
+
+```xml
+<delete id="deleteUser" parameterType="int">
+    delete
+    from mybatis.user
+    where id = #{id};
+</delete>
+```
+
+注意点：
+
+- 增删改查需要提交事务
+
+### 6、分析错误
+
+- 标签不要匹配错
+- resource绑定mapper，需要使用路径
+- 程序配置文件必须符合规范！
+- NullPointerException，没有注册到资源
+- 输出的xml文件中存在中文乱码问题！
+- maven资源没有导出问题
 
 
 

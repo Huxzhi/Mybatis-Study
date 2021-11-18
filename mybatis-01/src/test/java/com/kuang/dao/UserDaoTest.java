@@ -49,18 +49,39 @@ public class UserDaoTest {
     @Test
     public void addUser() {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
-
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         int res = mapper.addUser(new User(5, "小米", "123233"));
         if (res > 0) {
             System.out.println("插入成功！");
         }
-
         //增删改一定要 提交事务
         sqlSession.commit();
-
         sqlSession.close();
     }
 
+    @Test
+    public void updateUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int res = mapper.updateUser(new User(4, "呵呵", "123233"));
+        if (res > 0) {
+            System.out.println("修改成功！");
+        }
+        //增删改一定要 提交事务
+        sqlSession.commit();
+        sqlSession.close();
+    }
 
+    @Test
+    public void deleteUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int res = mapper.deleteUser(5);
+        if (res > 0) {
+            System.out.println("删除成功！");
+        }
+        //增删改一定要 提交事务
+        sqlSession.commit();
+        sqlSession.close();
+    }
 }

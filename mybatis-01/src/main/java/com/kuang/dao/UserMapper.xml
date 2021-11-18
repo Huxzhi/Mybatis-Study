@@ -24,5 +24,16 @@
         values (#{id}, #{name}, #{pwd})
     </insert>
 
+    <update id="updateUser" parameterType="com.kuang.pojo.User">
+        update mybatis.user
+        set name=#{name },
+            pwd=#{pwd}
+        where id = #{id};
+    </update>
 
+    <delete id="deleteUser" parameterType="int">
+        delete
+        from mybatis.user
+        where id = #{id};
+    </delete>
 </mapper>
