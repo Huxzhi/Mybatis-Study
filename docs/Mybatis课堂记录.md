@@ -402,6 +402,80 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 - 输出的xml文件中存在中文乱码问题！
 - maven资源没有导出问题
 
+### 7、万能Map
+
+假设，我们的实体类，或者数据库中的表，字段或者参数过多，我们应当考虑使用Map！
+
+```java
+//万能的Map
+int addUser2(Map<String, Object> map);
+```
+
+```xml
+<!--对象中的属性，可以直接取出来  传递map的key-->
+<insert id="addUser2" parameterType="map">
+    insert into mybatis.user (id, name, pwd)
+    values (#{userId}, #{userName}, #{passWord});
+</insert>
+```
+
+```java
+@Test
+public void addUser2() {
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("userId", 6);
+    map.put("userName", "Hello");
+    map.put("passWord", "222333");
+
+    int res = mapper.addUser2(map);
+    if (res > 0) {
+        System.out.println("插入成功！");
+    }
+
+    sqlSession.commit();
+    sqlSession.close();
+}
+```
+
+Map传递参数，直接在sql中取出key即可！【parameterType="map"】
+
+对象传递参数，直接在sql中取对象的属性即可！【parameterType="Object"】
+
+只有一个基本类型参数的情况下，可以直接在sql中取到！【直接省略】
+
+```xml
+<select id="getUserById" resultType="com.kuang.pojo.User">
+    select * from mybatis.user where id = #{id};
+</select>
+```
+
+
+
+多个参数用Map，**或者注解！**
+
+### 8、思考题
+
+模糊查询怎么写？
+
+
+
+1. Java代码执行的时候，传递通配符%%
+
+   ```java
+   List<User> updateUserLike = userMapper.getUserLike("%李%");
+   ```
+
+2. 在sql拼接中使用通配符！
+
+    ```sql
+    select * from mybatis.user where name like "%"#{value}"%";
+    ```
+
+
+
 
 
 

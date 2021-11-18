@@ -5,7 +5,9 @@ import com.kuang.utils.MybatisUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserDaoTest {
     @Test
@@ -36,6 +38,22 @@ public class UserDaoTest {
     }
 
     @Test
+    public void updateUserLike() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        List<User> updateUserLike = userMapper.getUserLike("%李%");
+
+        for (User user : updateUserLike) {
+            System.out.println(user);
+        }
+
+        sqlSession.close();
+
+
+    }
+
+    @Test
     public void getUserById() {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
 
@@ -47,10 +65,44 @@ public class UserDaoTest {
     }
 
     @Test
+    public void getUserById2() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("helloId", 1);
+        map.put("name", "狂神");
+
+        User userById = userMapper.getUserById2(map);
+        System.out.println(userById);
+
+        sqlSession.close();
+    }
+
+    @Test
     public void addUser() {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         int res = mapper.addUser(new User(5, "小米", "123233"));
+        if (res > 0) {
+            System.out.println("插入成功！");
+        }
+        //增删改一定要 提交事务
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    @Test
+    public void addUser2() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userId", 6);
+        map.put("userName", "Hello");
+        map.put("passWord", "222333");
+
+        int res = mapper.addUser2(map);
         if (res > 0) {
             System.out.println("插入成功！");
         }
