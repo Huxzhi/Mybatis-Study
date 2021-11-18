@@ -1,4 +1,4 @@
-package com.kaung.pojo;
+package com.kuang.pojo;
 
 public class User {
     private int id;

@@ -1,6 +1,6 @@
-package com.kaung.dao;
+package com.kuang.dao;
 
-import com.kaung.pojo.User;
+import com.kuang.pojo.User;
 
 import java.util.List;
 

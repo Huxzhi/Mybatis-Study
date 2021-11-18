@@ -4,15 +4,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!--namespace=绑定一个对应的Dao/Mapper接口-->
-<mapper namespace="com.kaung.dao.UserMapper">
+<mapper namespace="com.kuang.dao.UserMapper">
 
     <!--select查询语句，resultType写全名-->
-    <select id="getUserList" resultType="com.kaung.pojo.User">
+    <select id="getUserList" resultType="com.kuang.pojo.User">
         select *
         from mybatis.user
     </select>
 
-    <select id="getUserById" parameterType="int" resultType="com.kaung.pojo.User">
+    <select id="getUserById" parameterType="int" resultType="com.kuang.pojo.User">
         select *
         from mybatis.user
         where id = #{id}
@@ -23,4 +23,6 @@
         insert into mybatis.user (id, name, pwd)
         values (#{id}, #{name}, #{pwd})
     </insert>
+
+
 </mapper>

@@ -236,9 +236,9 @@ public class MybatisUtils {
           PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   <!--namespace=绑定一个对应的Dao/Mapper接口-->
-  <mapper namespace="com.kaung.dao.UserDao">
+  <mapper namespace="com.kuang.dao.UserDao">
       <!--select查询语句，resultType写全名-->
-      <select id="getUserList" resultType="com.kaung.pojo.User">
+      <select id="getUserList" resultType="com.kuang.pojo.User">
           select * from mybatis.user
       </select>
   </mapper>
@@ -248,7 +248,7 @@ public class MybatisUtils {
 
 注意点：
 
-org.apache.ibatis.binding.BindingException: Type interface com.kaung.dao.UserDao is not known to the MapperRegistry.
+org.apache.ibatis.binding.BindingException: Type interface com.kuang.dao.UserDao is not known to the MapperRegistry.
 
 MapperRegistry未注册
 
@@ -319,6 +319,7 @@ Could not find resource com/kaung/dao/UserMapper.xml
 namespace中的包名要和 Dao/mapper 接口的包名一致！
 
 ### 2、select
+
 选择，查询语句；
 
 

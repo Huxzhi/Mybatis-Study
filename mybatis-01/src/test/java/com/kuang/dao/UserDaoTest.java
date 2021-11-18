@@ -1,8 +1,7 @@
 package com.kuang.dao;
 
-import com.kaung.dao.UserMapper;
-import com.kaung.pojo.User;
-import com.kaung.utils.MybatisUtils;
+import com.kuang.pojo.User;
+import com.kuang.utils.MybatisUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 
@@ -52,7 +51,7 @@ public class UserDaoTest {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
 
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-        int res = mapper.addUser(new User(4, "哈哈", "123333"));
+        int res = mapper.addUser(new User(5, "小米", "123233"));
         if (res > 0) {
             System.out.println("插入成功！");
         }
