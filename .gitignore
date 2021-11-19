@@ -26,6 +26,7 @@ hs_err_pid*
 # 用户配置信息，容易暴露
 mybatis-config.xml
 
+
 target/
 
 !**/src/main/**
@@ -45,3 +46,4 @@ mvnw*
 1ogs/
 1og
 temp/
+mybatis-config.xml
