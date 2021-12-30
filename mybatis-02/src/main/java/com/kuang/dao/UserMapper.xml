@@ -7,13 +7,13 @@
 <mapper namespace="com.kuang.dao.UserMapper">
 
     <!--select查询语句，resultType写全名-->
-    <select id="getUserList" resultType="com.kuang.pojo.User">
+    <select id="getUserList" resultType="User">
         select *
         from mybatis.user;
     </select>
 
 
-    <select id="getUserById" parameterType="int" resultType="com.kuang.pojo.User">
+    <select id="getUserById" parameterType="int" resultType="User">
         select *
         from mybatis.user
         where id = #{id};

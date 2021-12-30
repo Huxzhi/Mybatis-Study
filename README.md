@@ -1,6 +1,15 @@
 # Mybatis-Study
 
+本笔记根据 b站视频公开视频
+[【狂神说Java】Mybatis最新完整教程IDEA版通俗易懂](https://www.bilibili.com/video/BV1NE411Q7Nx)
+边学边做的笔记，一切以视频为主
+
+如侵删
+
+使用指南
 [Mybatis课堂记录](docs/Mybatis课堂记录.md)
+
+
 
 ## 使用 mybatis-01 说明
 

@@ -23,8 +23,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# 用户配置信息，容易暴露
-mybatis-config.xml
+
 
 
 target/
@@ -46,4 +45,8 @@ mvnw*
 1ogs/
 1og
 temp/
+
+# 用户配置信息，容易暴露
 mybatis-config.xml
+db.properties
+mybatis-02/src/main/resources/db.properties
