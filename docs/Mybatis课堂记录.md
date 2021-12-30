@@ -311,13 +311,13 @@ Could not find resource com/kaung/dao/UserMapper.xml
 
 # 3、CURD
 
-### 1、namespace
+### 3.1、namespace
 
 命名空间
 
 namespace中的包名要和 Dao/mapper 接口的包名一致！
 
-### 2、select
+### 3.2、select
 
 选择，查询语句；
 
@@ -357,7 +357,7 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 
    
 
-### 3、Insert
+### 3.3、Insert
 
 ```xml
 <!--对象中的属性，可以直接取出来-->
@@ -367,7 +367,7 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 </insert>
 ```
 
-### 4、Update
+### 3.4、Update
 
 ```xml
 <update id="updateUser" parameterType="com.kuang.pojo.User">
@@ -378,7 +378,7 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 </update>
 ```
 
-### 5、Delete
+### 3.5、Delete
 
 ```xml
 <delete id="deleteUser" parameterType="int">
@@ -392,7 +392,7 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 
 - 增删改查需要提交事务
 
-### 6、分析错误
+### 3.6、分析错误
 
 - 标签不要匹配错
 - resource绑定mapper，需要使用路径
@@ -401,7 +401,7 @@ namespace中的包名要和 Dao/mapper 接口的包名一致！
 - 输出的xml文件中存在中文乱码问题！
 - maven资源没有导出问题
 
-### 7、万能Map
+### 3.7、万能Map
 
 假设，我们的实体类，或者数据库中的表，字段或者参数过多，我们应当考虑使用Map！
 
@@ -455,7 +455,7 @@ Map传递参数，直接在sql中取出key即可！【parameterType="map"】
 
 多个参数用Map，**或者注解！**
 
-### 8、思考题
+### 3.8、思考题
 
 模糊查询怎么写？
 
@@ -477,7 +477,7 @@ Map传递参数，直接在sql中取出key即可！【parameterType="map"】
 
 # 4、配置解析
 
-### 1、核心配置文件（configuration）
+### 4.1、核心配置文件（configuration）
 
 mybatis-config.xml
 
@@ -499,7 +499,7 @@ MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性
     mappers（映射器）
     ```
 
-### 2、环境配置（environments）
+### 4.2、环境配置（environments）
 
 MyBatis 可以配置成适应多种环境，**不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。**
 
@@ -525,7 +525,7 @@ dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象
 
 > JNDI即Java Naming and Directory Interface（JAVA命名和目录接口），那么java命名目的就是为了记录一些不方便记录的内容，就像人的名字或DNS中的域名与IP的关系。
 
-### 3、属性（properties）
+### 4.3、属性（properties）
 
 我们可以通过properties属性来实现引用配置文件
 
@@ -557,7 +557,7 @@ password=123456
 - 可以在其中增加一些属性配置
 - 如果两个文件有同一个字段，优先使用外部配置文件的！
 
-### 4、类型别名（typeAliases）
+### 4.4、类型别名（typeAliases）
 
 - 类型别名可为 Java 类型设置一个缩写名字。
 - 它仅用于 XML 配置，意在降低冗余的全限定类名书写。
@@ -606,7 +606,7 @@ public class Author {
 
 基本类型前面加 _int 表示基本类型，int 表示包装类型
 
-### 5、设置（settings）
+### 4.5、设置（settings）
 
 这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。 下表描述了设置中各项设置的含义、默认值等。
 
@@ -619,7 +619,7 @@ public class Author {
 
 > 2021年12月初 爆发 log4j2 Jndi RCE CVE-2021-44228漏洞，阿里云发现阿帕奇（Apache）Log4j2组件严重安全漏洞隐患后，未及时向电信主管部门报告，未有效支撑工信部开展网络安全威胁和漏洞管理，经研究，工信部网络安全管理局决定暂停阿里云作为工信部网络安全威胁信息共享平台合作单位6个月。
 
-### 6、其他配置
+### 4.6、其他配置
 
 - [typeHandlers（类型处理器）](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)
 - [objectFactory（对象工厂）](https://mybatis.org/mybatis-3/zh/configuration.html#objectFactory)
@@ -628,7 +628,7 @@ public class Author {
   - mybatis-plus
   - 通用mapper
 
-### 7、映射器（mappers）
+### 4.7、映射器（mappers）
 
 MapperRegistry：注册绑定我们的Mapper文件；
 
@@ -678,7 +678,7 @@ MapperRegistry：注册绑定我们的Mapper文件；
 - 实体类别名
 - 保证 UserMapper 接口和 UserMapper.xml 改为一致！并且放在同一个包下！
 
-### 8、作用域（Scope）和生命周期
+### 4.8、作用域（Scope）和生命周期
 
 ![image-20211230102431759](Mybatis课堂记录.assets/image-20211230102431759.png)
 
@@ -708,7 +708,7 @@ MapperRegistry：注册绑定我们的Mapper文件；
 
 # 5、解决属性名和字段名不一致的问题
 
-### 1、问题
+### 5.1、问题
 
 数据库中的字段
 
@@ -744,7 +744,7 @@ public class User {
     //    select id,name,pwd as password from mybatis.user where id = #{id};
     ```
 
-### 2、resultMap
+### 5.2、resultMap
 
 结果集映射
 
@@ -773,6 +773,154 @@ id	name	password
 - ResultMap 的设计思想是，对简单的语句做到零配置，对于复杂一点的语句，只需要描述语句之间的关系就行了。
 - `ResultMap` 的优秀之处——你完全可以不用显式地配置它们
 - 如果这个世界总是这么简单就好了。
+
+# 6、日志
+
+### 6.1、日志工厂
+
+如果一个数据库操作，出现了异常，我们需要排错。日志就是最好的助手！
+
+曾经：sout、debug
+
+现在：日志工厂！
+
+| logImpl | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。 | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING |
+| ------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+
+- SLF4J
+- LOG4J  【掌握】
+- LOG4J2
+- JDK_LOGGING
+- COMMONS_LOGGING
+- STDOUT_LOGGING  【掌握】
+- NO_LOGGING
+
+在Mybatis中具体使用哪个日志实现，在设置中设定！
+
+**STDOUT_LOGGING 标准日志输出**
+
+在`mybatis-config.xml`核心配置文件中，配置我们的日志！
+
+```xml
+<settings>
+    <!--标准的日志工厂实现-->
+    <setting name="logImpl" value="STDOUT_LOGGING"/>
+</settings>
+```
+
+日志输出样例：
+
+```shell
+Opening JDBC Connection
+Created connection 733943822.
+Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@2bbf180e]
+==>  Preparing: select * from mybatis.user where id = ?;
+==> Parameters: 1(Integer)
+<==    Columns: id, name, pwd
+<==        Row: 1, 狂神, 123456
+<==      Total: 1
+User{id=1, name='狂神', password='123456'}
+Resetting autocommit to true on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@2bbf180e]
+Closing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@2bbf180e]
+Returned connection 733943822 to pool.
+```
+
+### 6.2、Log4j
+
+什么是Log4j？
+
+- Log4j是Apache的一个开源项目，通过使用Log4j，我们可以控制日志信息输送的目的地是控制台、文件、GUI组件
+- 可以控制每一条日志的输出格式
+- 通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程
+- 通过一个[配置文件](https://baike.baidu.com/item/配置文件/286550)来灵活地进行配置，而不需要修改应用的代码。
+
+
+
+1. 先导入log4j的包
+
+   ```xml
+   <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+   <dependency>
+       <groupId>log4j</groupId>
+       <artifactId>log4j</artifactId>
+       <version>1.2.17</version>
+   </dependency>
+   ```
+
+2. log4j.properties
+
+   ```properties
+   #将等级为DEBUG的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码
+   log4j.rootLogger=DEBUG,console,file
+   #控制台输出的相关设置
+   log4j.appender.console=org.apache.log4j.ConsoleAppender
+   log4j.appender.console.Target=System.out
+   log4j.appender.console.Threshold=DEBUG
+   log4j.appender.console.layout=org.apache.log4j.PatternLayout
+   log4j.appender.console.layout.ConversionPattern=[%c]-%m%n
+   #文件输出的相关设置
+   log4j.appender.file=org.apache.log4j.RollingFileAppender
+   log4j.appender.file.File=./log/kuang.log
+   log4j.appender.file.MaxFileSize=10mb
+   log4j.appender.file.Threshold=DEBUG
+   log4j.appender.file.layout=org.apache.log4j.PatternLayout
+   log4j.appender.file.layout.ConversionPattern=[%p][%d{yy-MM-dd}][%c]%m%n
+   #日志输出级别
+   log4j.logger.org.mybatis=DEBUG
+   log4j.logger.java.sql=DEBUG
+   log4j.logger.java.sql.Statement=DEBUG
+   log4j.logger.java.sql.ResultSet=DEBUG
+   log4j.logger.java.sql.PreparedStatement=DEBUG
+   ```
+
+3. 配置log4j为日志实现
+
+   ```xml
+   <settings>
+       <setting name="logImpl" value="LOG4J"/>
+   </settings>
+   ```
+
+4. Log4j的使用！，直接测试运行刚才的查询
+
+   ```shell
+   [org.apache.ibatis.logging.LogFactory]-Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+   [org.apache.ibatis.logging.LogFactory]-Logging initialized using 'class org.apache.ibatis.logging.log4j.Log4jImpl' adapter.
+   
+   [org.apache.ibatis.transaction.jdbc.JdbcTransaction]-Opening JDBC Connection
+   [org.apache.ibatis.datasource.pooled.PooledDataSource]-Created connection 2114684409.
+   [org.apache.ibatis.transaction.jdbc.JdbcTransaction]-Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@7e0b85f9]
+   [com.kuang.dao.UserMapper.getUserById]-==>  Preparing: select * from mybatis.user where id = ?;
+   [com.kuang.dao.UserMapper.getUserById]-==> Parameters: 1(Integer)
+   [com.kuang.dao.UserMapper.getUserById]-<==      Total: 1
+   User{id=1, name='狂神', password='123456'}
+   [org.apache.ibatis.transaction.jdbc.JdbcTransaction]-Resetting autocommit to true on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@7e0b85f9]
+   [org.apache.ibatis.transaction.jdbc.JdbcTransaction]-Closing JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@7e0b85f9]
+   [org.apache.ibatis.datasource.pooled.PooledDataSource]-Returned connection 2114684409 to pool.
+   ```
+
+**简单使用**
+
+1. 在要使用 Log4j 的类中，导入包`import org.apache.log4j.Logger;`
+
+2. 日志对象，参数为当前类的class
+    ```java
+    static Logger logger = Logger.getLogger(UserDaoTest.class);
+    ```
+    
+3. 日志级别
+
+    ```java
+    logger.info("info:进入了testLog4j");
+    logger.debug("debug:进入了testLog4j");
+    logger.error("error:进入了testLog4j");
+    ```
+
+
+
+
+
+
 
 
 
