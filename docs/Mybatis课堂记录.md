@@ -478,45 +478,240 @@ Map传递参数，直接在sql中取出key即可！【parameterType="map"】
 
 # 4、配置解析
 
-### 1、核心配置文件
+### 1、核心配置文件（configuration）
 
 mybatis-config.xml
 
 MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。
 
+    ```xml
+    configuration（配置）
+    properties（属性）
+    settings（设置）
+    typeAliases（类型别名）
+    typeHandlers（类型处理器）
+    objectFactory（对象工厂）
+    plugins（插件）
+    environments（环境配置）
+    environment（环境变量）
+    transactionManager（事务管理器）
+    dataSource（数据源）
+    databaseIdProvider（数据库厂商标识）
+    mappers（映射器）
+    ```
+
+### 2、环境配置（environments）
+
+MyBatis 可以配置成适应多种环境，**不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。**
+
+**事务管理器（transactionManager）**
+
+在 MyBatis 中有两种类型的事务管理器（也就是 type="[JDBC|MANAGED]"）
+
+只要知道事务管理器不是只有一种就行
+
+>  如果你正在使用 Spring + MyBatis，则没有必要配置事务管理器，因为 Spring 模块会使用自带的管理器来覆盖前面的配置。
+
+**数据源（dataSource）**
+
+> 连接数据库 dbcp    c3p0    druid
+
+dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象的资源。
+
+- 大多数 MyBatis 应用程序会按示例中的例子来配置数据源。虽然数据源配置是可选的，但如果要启用延迟加载特性，就必须配置数据源。
+
+有三种内建的数据源类型（也就是 type="[UNPOOLED|POOLED|JNDI]"）：
+
+> pooled 池：用完可以回收。不用池可以降低 数据库连接可用性要求
+
+> JNDI即Java Naming and Directory Interface（JAVA命名和目录接口），那么java命名目的就是为了记录一些不方便记录的内容，就像人的名字或DNS中的域名与IP的关系。
+
+### 3、属性（properties）
+
+我们可以通过properties属性来实现引用配置文件
+
+这些属性可以在外部进行配置，并可以进行动态替换。你既可以在典型的 Java 属性文件中配置这些属性，也可以在 properties 元素的子元素中设置。【db.properties】
+
+> ![image-20211229213131386](Mybatis课堂记录.assets/image-20211229213131386-16407846957611.png)
+在xml中，所有的标签都可以规定其顺序
+
+编写一个配置文件
+
+db.properties
+
+```properties
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/mybatis?usessL=true&useUnicode=true&characterEncoding=UTF-8
+username=root
+password=123456
+```
+在核心配置文件中引入
 ```xml
-configuration（配置）
-properties（属性）
-settings（设置）
-typeAliases（类型别名）
-typeHandlers（类型处理器）
-objectFactory（对象工厂）
-plugins（插件）
-environments（环境配置）
-environment（环境变量）
-transactionManager（事务管理器）
-dataSource（数据源）
-databaseIdProvider（数据库厂商标识）
-mappers（映射器）
+<!--引入外部配置文件-->
+<properties resource="db.properties">
+    <property name="username" value="hu_remote"/>
+    <property name="pwd" value="123456"/>
+</properties>
 ```
 
+- 可以直接引入外部文件
+- 可以在其中增加一些属性配置
+- 如果两个文件有同一个字段，优先使用外部配置文件的！
+
+### 4、类型别名（typeAliases）
+
+- 类型别名可为 Java 类型设置一个缩写名字。
+- 它仅用于 XML 配置，意在降低冗余的全限定类名书写。
+
+```xml
+<!--可以实体取别名-->
+<typeAliases>
+    <typeAlias type="com.kuang.pojo.User" alias="User"/>
+</typeAliases>
+```
+
+也可以指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean，比如：
+
+扫描实体类的包吗，默认会使用 Bean 的**首字母小写**的非限定类名来作为它的别名， 
+
+```xml
+<!--可以实体取别名-->
+<typeAliases>
+    <package name="com.kuang.pojo"/>
+</typeAliases>
+```
+
+若有注解，则别名为其注解值。
+
+```java
+@Alias("author")
+public class Author {
+    ...
+}
+```
+
+在实体类比较少的时候，使用第一种方式。
+
+如果实体类十分多，建议使用第二种。
+
+第一种可以DIY别名，第二种则·不行，如果非要改，需要在实体上增加注解
+
+下面是一些为常见的 Java 类型内建的类型别名：
+
+| 别名  | 映射的类型 |
+| ----- | ---------- |
+| _byte | byte       |
+| _int  | int        |
+| int   | Integer    |
+| map   | Map        |
+
+基本类型前面加 _int 表示基本类型，int 表示包装类型
+
+### 5、设置（settings）
+
+这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。 下表描述了设置中各项设置的含义、默认值等。
+
+| 设置名             | 描述                                                         | 有效值                                                       | 默认值 |
+| :----------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----- |
+| cacheEnabled       | 全局性地开启或关闭所有映射器配置文件中已配置的任何缓存。     | true \| false                                                | true   |
+| lazyLoadingEnabled | 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 `fetchType` 属性来覆盖该项的开关状态。 | true \| false                                                | false  |
+| useGeneratedKeys   | 允许 JDBC 支持自动生成主键，需要数据库驱动支持。如果设置为 true，将强制使用自动生成主键。尽管一些数据库驱动不支持此特性，但仍可正常工作（如 Derby）。 | true \| false                                                | False  |
+| logImpl            | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。        | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | 未设置 |
+
+> 2021年12月初 爆发 log4j2 Jndi RCE CVE-2021-44228漏洞，阿里云发现阿帕奇（Apache）Log4j2组件严重安全漏洞隐患后，未及时向电信主管部门报告，未有效支撑工信部开展网络安全威胁和漏洞管理，经研究，工信部网络安全管理局决定暂停阿里云作为工信部网络安全威胁信息共享平台合作单位6个月。
+
+### 6、其他配置
+
+- [typeHandlers（类型处理器）](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)
+- [objectFactory（对象工厂）](https://mybatis.org/mybatis-3/zh/configuration.html#objectFactory)
+- [plugins（插件）](https://mybatis.org/mybatis-3/zh/configuration.html#plugins)
+  - mybatis-generator-core
+  - mybatis-plus
+  - 通用mapper
+
+### 7、映射器（mappers）
+
+MapperRegistry：注册绑定我们的Mapper文件；
+
+方式一：【推荐使用】
+
+```xml
+<!--每一个Mapper.XML都需要在Mybatis核心配置文件中注册！-->
+<mappers>
+    <mapper resource="com/kuang/dao/UserMapper.xml"/>
+</mappers>
+```
+
+方式二：使用class文件绑定注册
+
+```xml
+<!--每一个Mapper.XML都需要在Mybatis核心配置文件中注册！-->
+<mappers>
+    <mapper class="com.kuang.dao.UserMapper"/>
+</mappers>
+```
+
+注意点：
+
+- 接口和他的Mapper配置文件必须同名！
+- 接口和他的Mapper配置文件必须在同一个包下！
 
 
 
+方式三：使用扫描包进行注入绑定
+
+```xml
+<mappers>
+    <package name="com.kuang.dao"/>
+</mappers>
+```
+
+注意点：
+
+- 接口和他的Mapper配置文件必须同名！
+- 接口和他的Mapper配置文件必须在同一个包下！
 
 
 
+练习时间：
 
+- 将数据库配置文件外部引入
+- 实体类别名
+- 保证 UserMapper 接口和 UserMapper.xml 改为一致！并且放在同一个包下！
 
+### 8、作用域（Scope）和生命周期
 
+![image-20211230102431759](Mybatis课堂记录.assets/image-20211230102431759-16408310736462.png)
 
+生命周期，和作用域，是至关重要的，因为错误的使用会导致非常严重的**并发问题**。
 
+**SqlSessionFactoryBuilder：**
 
+- 一旦创建了 SqlSessionFactory ，就不再需要它了
+- 局部变量
 
+**SqlSessionFactory：**
 
+- 说白了就是可以想象为：数据库连接池
+- SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，**没有任何理由丢弃它或重新创建另一个实例。**
+- SqlSessionFactory 的最佳作用域是应用作用域。
+- 最简单的就是使用单例模式或者静态单例模式。
 
+**SqlSession：**
 
+- 连接到连接池的一个请求！每个每个线程都应该有它自己的 SqlSession 实例。
+- SqlSession 的实例不是线程安全的，因此是不能被共享的，所以它的最佳的作用域是请求或方法作用域。
+- 用完之后需要赶紧关闭，否则资源被占用！
 
+![image-20211230103427212](Mybatis课堂记录.assets/image-20211230103427212.png)
 
+这里的每一个Mapper，就代表一个具体的业务
 
+# 5、解决属性名和字段名不一致的问题
+
+数据库中的字段
+
+![image-20211230114158196](Mybatis课堂记录.assets/image-20211230114158196.png)
+
+新建一个项目，拷贝之前的，测试实体类字段不一致的情况
 

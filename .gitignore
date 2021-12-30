@@ -47,6 +47,7 @@ mvnw*
 temp/
 
 # 用户配置信息，容易暴露
-mybatis-config.xml
+mybatis-01/src/main/resources/mybatis-config.xml
+mybatis-02/src/main/resources/mybatis-config.xml
 db.properties
-mybatis-02/src/main/resources/db.properties
+
