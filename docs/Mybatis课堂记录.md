@@ -257,7 +257,6 @@ Could not find resource com/kaung/dao/UserMapper.xml
 在build中配置resources，来防止我们资源导出失败的问题
 
 ```xml
-
 <build>
     <resources>
         <resource>
@@ -532,7 +531,7 @@ dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象
 
 这些属性可以在外部进行配置，并可以进行动态替换。你既可以在典型的 Java 属性文件中配置这些属性，也可以在 properties 元素的子元素中设置。【db.properties】
 
-> ![image-20211229213131386](Mybatis课堂记录.assets/image-20211229213131386-16407846957611.png)
+> ![image-20211229213131386](Mybatis课堂记录.assets/image-20211229213131386.png)
 在xml中，所有的标签都可以规定其顺序
 
 编写一个配置文件
@@ -681,7 +680,7 @@ MapperRegistry：注册绑定我们的Mapper文件；
 
 ### 8、作用域（Scope）和生命周期
 
-![image-20211230102431759](Mybatis课堂记录.assets/image-20211230102431759-16408310736462.png)
+![image-20211230102431759](Mybatis课堂记录.assets/image-20211230102431759.png)
 
 生命周期，和作用域，是至关重要的，因为错误的使用会导致非常严重的**并发问题**。
 
@@ -709,9 +708,71 @@ MapperRegistry：注册绑定我们的Mapper文件；
 
 # 5、解决属性名和字段名不一致的问题
 
+### 1、问题
+
 数据库中的字段
 
 ![image-20211230114158196](Mybatis课堂记录.assets/image-20211230114158196.png)
 
 新建一个项目，拷贝之前的，测试实体类字段不一致的情况
+
+```java
+public class User {
+    
+    private int id;
+    private String name;
+    private String password;
+}
+```
+
+测试出现问题
+
+![image-20211230121923256](Mybatis课堂记录.assets/image-20211230121923256.png)
+
+```java
+//    select * from mybatis.user where id = #{id};
+//类型处理器
+//    select id,name,pwd  from mybatis.user where id = #{id};
+```
+
+解决方法：
+
+- 起别名
+    ```java
+    //    select * from mybatis.user where id = #{id};
+    //类型处理器
+    //    select id,name,pwd as password from mybatis.user where id = #{id};
+    ```
+
+### 2、resultMap
+
+结果集映射
+
+```java
+id	name	pwd
+id	name	password
+```
+
+```xml
+<!--结果集映射-->
+<resultMap id="UserMap" type="User">
+    <!--column数据库中的字段，property实体类中的属性-->
+    <result column="id" property="id"/>
+    <result column="name" property="name"/>
+    <result column="pwd" property="password"/>
+</resultMap>
+
+<select id="getUserById" parameterType="int" resultMap="UserMap">
+    select *
+    from mybatis.user
+    where id = #{id};
+</select>
+```
+
+- `resultMap` 元素是 MyBatis 中最重要最强大的元素。
+- ResultMap 的设计思想是，对简单的语句做到零配置，对于复杂一点的语句，只需要描述语句之间的关系就行了。
+- `ResultMap` 的优秀之处——你完全可以不用显式地配置它们
+- 如果这个世界总是这么简单就好了。
+
+
 
