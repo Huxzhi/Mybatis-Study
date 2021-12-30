@@ -4,8 +4,6 @@ import com.kuang.utils.MybatisUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 
-import java.util.List;
-
 public class UserDaoTest {
 
     @Test
@@ -13,15 +11,13 @@ public class UserDaoTest {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
 
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
-        List<User> updateUserLike = userMapper.getUserList();
 
-        for (User user : updateUserLike) {
-            System.out.println(user);
-        }
+        User user = userMapper.getUserById(1);
+        System.out.println(user);
 
         sqlSession.close();
-
-
     }
-
+//    select * from mybatis.user where id = #{id};
+//类型处理器
+//    select id,name,pwd as password from mybatis.user where id = #{id};
 }

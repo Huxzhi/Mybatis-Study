@@ -5,38 +5,18 @@
 
 <!--namespace=绑定一个对应的Dao/Mapper接口-->
 <mapper namespace="com.kuang.dao.UserMapper">
+    <!--结果集映射-->
+    <resultMap id="UserMap" type="User">
+        <!--column数据库中的字段，property实体类中的属性-->
+        <!--<result column="id" property="id"/>-->
+        <!--<result column="name" property="name"/>-->
+        <result column="pwd" property="password"/>
+    </resultMap>
 
-    <!--select查询语句，resultType写全名-->
-    <select id="getUserList" resultType="User">
-        select *
-        from mybatis.user;
-    </select>
-
-
-    <select id="getUserById" parameterType="int" resultType="User">
+    <select id="getUserById" parameterType="int" resultMap="UserMap">
         select *
         from mybatis.user
         where id = #{id};
     </select>
 
-
-    <!--对象中的属性，可以直接取出来-->
-    <insert id="addUser" parameterType="User">
-        insert into mybatis.user (id, name, pwd)
-        values (#{id}, #{name}, #{pwd});
-    </insert>
-
-
-    <update id="updateUser" parameterType="User">
-        update mybatis.user
-        set name=#{name },
-            pwd=#{pwd}
-        where id = #{id};
-    </update>
-
-    <delete id="deleteUser" parameterType="int">
-        delete
-        from mybatis.user
-        where id = #{id};
-    </delete>
 </mapper>
