@@ -1111,23 +1111,26 @@ public interface BlogMapper {
 
 ```mermaid
 graph TB
-%% * 表示可见
-Resources获取加载全局配置文件 -->
-*实例化SqlSessionFactoryBuilder构造器 -->
-解析配置文件流XMLConfigBuilder -->
-Configuration所有的配置信息 -->
-*SqlSessionFactory实例化 -->
-transactional事务管理器 --> 
-创建executor执行器 -->
-创建sqlSession -->
-实现CRUD --> transactional事务管理器
-实现CRUD --> A
-A{查看是否执行成功} --> transactional事务管理器
-A --> 提交事务 -->
-关闭
+%%渲染错误，需要插件支持，前往https://github.com/BackMarket/github-mermaid-extension下载插件
+    Resources获取加载全局配置文件 -->
+    实例化SqlSessionFactoryBuilder构造器 -->
+    解析配置文件流XMLConfigBuilder -->
+    Configuration所有的配置信息 -->
+    SqlSessionFactory实例化 -->
+    transactional事务管理器 --> 
+    创建executor执行器 -->
+    创建sqlSession -->
+    实现CRUD --> transactional事务管理器
+    实现CRUD --> A
+    A{查看是否执行成功} --> transactional事务管理器
+    A --> 提交事务 -->
+    关闭
 ```
 
+在Mybatis中只有以下两步可见，其他都被底层隐藏了
 
+- 实例化SqlSessionFactoryBuilder构造器
+- SqlSessionFactory实例化
 
 
 
