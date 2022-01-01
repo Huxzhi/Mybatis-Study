@@ -916,9 +916,216 @@ Returned connection 733943822 to pool.
     logger.error("error:进入了testLog4j");
     ```
 
+# 7、分页
+
+**思考：为什么要分页？**
+
+- 减少数据的处理量
 
 
 
+### 7.1、使用Limit分页
+
+```sql
+语法：select * from user limit startIndex,pagesSize;
+select * from user limit 2,2; #[0,n]
+```
+
+使用Mybaits实现分页，核心SQL
+
+1. 接口
+
+   ```java
+   //分页
+   List<User> getUserByLimit(Map<String, Integer> map);
+   ```
+
+2. Mapper.xml
+
+   ```xml
+   <!--分页-->
+   <select id="getUserByLimit" parameterType="map" resultType="user">
+       select *
+       from mybatis.user limit #{startIndex},#{pageSize}
+   </select>
+   ```
+
+3. 测试
+
+   ```java
+   @Test
+   public void getUserByLimit() {
+       SqlSession sqlSession = MybatisUtils.getSqlSession();
+       UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+   
+       HashMap<String, Integer> map = new HashMap<>();
+       map.put("startIndex", 0);
+       map.put("pageSize", 2);
+   
+       List<User> userList = mapper.getUserByLimit(map);
+       for (User user :
+               userList) {
+           System.out.println(user);
+       }
+   
+       sqlSession.close();
+   }
+   ```
+
+
+
+### 7.2、RowBounds分页
+
+不再使用SQL实现分页
+
+1. 接口
+
+   ```java
+   //分页2
+   List<User> getUserByRowBounds(Map<String, Integer> map);
+   ```
+
+2. Mapper.xml
+
+   ```xml
+   <!--分页2-->
+   <select id="getUserByRowBounds" parameterType="map" resultType="user">
+       select * from mybatis.user;
+   </select>
+   ```
+
+3. 测试
+
+   ```java
+   @Test
+   public void getUserByRowBounds() {
+       SqlSession sqlSession = MybatisUtils.getSqlSession();
+   
+       //RowBounds实现
+       RowBounds rowBounds = new RowBounds(1, 2);
+   
+       //通过Java代码层面而实现分页
+       List<User> userList = sqlSession.selectList("com.kuang.dao.UserMapper.getUserByRowBounds", null, rowBounds);
+       for (User user : userList) {
+           System.out.println(user);
+       }
+       sqlSession.close();
+   }
+   ```
+
+### 7.3、分页插件
+
+[MyBatis 分页插件 PageHelper](https://pagehelper.github.io)
+
+![image-20220101201835980](Mybatis课堂记录.assets/image-20220101201835980.png)
+
+了解即可，万一以后公司的架构师，说要使用，你需要知道它是什么东西！
+
+# 8、使用注解开发
+
+### 8.1、面向接口编程
+
+- 大家之前都学过面向对象编程，也学习过接口，但在真正的开发中，很多时候我们会选择面向接口编程
+- **根本原因：==解耦==，可拓展，提高复用，分层开发中，上层不用管具体的实现，大家都遵守共同的标准，使得开发变得容易，规范性更好**
+- 在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是如何实现自己的，对系统设计人员来讲就不那么重要了；
+- 而各个对象之间的协作关系则成为系统设计的关键。小到不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内容。面向接口编程就是指按照这种思想来编程。
+
+
+
+**关于接口的理解**
+
+- 接口从更深层次的理解，应是定义（规范，约束）与实现（名实分离的原则）的分离。
+
+- 接口的本身反映了系统设计人员对系统的抽象理解。
+  接口应有两类：
+
+  - 第一类是对一个个体的抽象，它可对应为一个抽象体（abstract class）；
+  - 第二类是对一个个体某一方面的抽象，即形成一个抽象面（interface）；
+
+- 一个体有可能有多个抽象面。抽象体与抽象面是有区别的。
+
+  
+
+  **三个面向区别**
+
+- 面向对象是指，我们考虑问题时，以对象为单位，考虑它的属性及方法.
+
+- 面向过程是指，我们考虑问题时，以一个具体的流程（事务过程）为单位，考虑它的实现，
+
+- 接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题，更多的体现就是对系统整体的架构
+
+### 8.2、使用注解开发
+
+对于像 BlogMapper 这样的映射器类来说，还有另一种方法来完成语句映射。 它们映射的语句可以不用 XML 来配置，而可以使用 Java 注解来配置。比如，上面的 XML 示例可以被替换成如下的配置：
+
+```java
+package org.mybatis.example;
+public interface BlogMapper {
+  @Select("SELECT * FROM blog WHERE id = #{id}")
+  Blog selectBlog(int id);
+}
+```
+
+1. 注解在接口上实现
+
+   ```java
+   @Select("select * from user")
+   List<User> getUsers();
+   ```
+
+2. 需要在核心配置文件中绑定接口！
+
+   ```xml
+   <mappers>
+       <mapper class="com.kuang.dao.UserMapper"/>
+   </mappers>
+   ```
+
+3. 测试
+
+   ```java
+   @Test
+   public void test() {
+       SqlSession sqlSession = MybatisUtils.getSqlSession();
+       
+       //通过反射获取注解值
+       UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+       List<User> users = mapper.getUsers();
+       for (User user :
+               users) {
+           System.out.println(user);
+       }
+       sqlSession.close();
+   }
+   ```
+
+本质：反射机制实现
+
+底层：动态代理！
+
+![image-20220101205138151](Mybatis课堂记录.assets/image-20220101205138151.png)
+
+
+
+**Mybatis详细的执行流程！**
+
+```mermaid
+graph TB
+%% * 表示可见
+Resources获取加载全局配置文件 -->
+*实例化SqlSessionFactoryBuilder构造器 -->
+解析配置文件流XMLConfigBuilder -->
+Configuration所有的配置信息 -->
+*SqlSessionFactory实例化 -->
+transactional事务管理器 --> 
+创建executor执行器 -->
+创建sqlSession -->
+实现CRUD --> transactional事务管理器
+实现CRUD --> A
+A{查看是否执行成功} --> transactional事务管理器
+A --> 提交事务 -->
+关闭
+```
 
 
 
