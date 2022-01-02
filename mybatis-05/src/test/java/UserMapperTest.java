@@ -8,9 +8,9 @@ import java.util.List;
 
 public class UserMapperTest {
     @Test
-    public void test() {
+    public void getUsers() {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
-        
+
         //通过反射获取注解值
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         List<User> users = mapper.getUsers();
@@ -18,6 +18,54 @@ public class UserMapperTest {
                 users) {
             System.out.println(user);
         }
+        sqlSession.close();
+    }
+
+    @Test
+    public void getUserByID() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        //通过反射获取注解值
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        User user = mapper.getUserByID(1);
+        System.out.println(user);
+
+        sqlSession.close();
+    }
+
+    @Test
+    public void addUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        //通过反射获取注解值
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int row = mapper.addUser(new User(6, "xiaoming", "123456"));
+        System.out.println(row);
+
+        sqlSession.close();
+    }
+
+    @Test
+    public void updateUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        //通过反射获取注解值
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int row = mapper.updateUser(new User(6, "to", "123456"));
+        System.out.println(row);
+
+        sqlSession.close();
+    }
+
+    @Test
+    public void deleteUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        //通过反射获取注解值
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int row = mapper.deleteUser(6);
+        System.out.println(row);
+
         sqlSession.close();
     }
 }

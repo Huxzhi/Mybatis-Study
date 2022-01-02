@@ -1106,7 +1106,6 @@ public interface BlogMapper {
 ![image-20220101205138151](Mybatis课堂记录.assets/image-20220101205138151.png)
 
 
-
 **Mybatis详细的执行流程！**
 
 ```mermaid
@@ -1132,5 +1131,197 @@ graph TB
 - 实例化SqlSessionFactoryBuilder构造器
 - SqlSessionFactory实例化
 
+### 8.3、CRUD
+
+我们可以在工具类创建的时候实现自动提交事务！
+
+```java
+public static SqlSession getSqlSession() {
+    return sqlSessionFactory.openSession(true);
+}
+```
 
 
+编写接口，增加注解
+
+```java
+@Select("select * from user")
+List<User> getUsers();
+
+//方法存在多个参数，所有的参数前面必须加上 @Param("id") 注解
+@Select("select * from user where id = #{id}")
+User getUserByID(@Param("id") int id);
+
+@Insert("insert into user(id,name,pwd) values (#{id},#{name},#{password})")
+int addUser(User user);
+
+@Update("update user set name=#{name},pwd=#{password} where id =#{id}")
+int updateUser(User user);
+
+@Delete("delete from user where id = #{uid}")
+int deleteUser(@Param("uid") int id);
+```
+
+测试类
+
+```java
+@Test
+public void getUserByID() {
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+    //通过反射获取注解值
+    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+    
+    User user = mapper.getUserByID(1);
+    int row = mapper.addUser(new User(6, "xiaoming", "123456"));
+    int row = mapper.updateUser(new User(6, "to", "123456"));
+    int row = mapper.deleteUser(6);
+
+    sqlSession.close();
+}
+
+```
+
+【注意：我们必须要讲接口注册绑定到我们的核心配置文件中！】
+
+
+**关于`@Param()`注解**
+
+- 基本类型的参数或者String类型，需要加上
+- 引用类型不需要加
+- 如果只有一个基本类型的话，可以忽略，但是建议大家都加上！
+- 我们在SQL中引用的就是我们这里的`@Param()`中设定的属性名！
+
+
+**#{}. ${}区别**
+
+> 1）#{}是预编译处理，\${} 是字符串替换。
+> 2）MyBatis在处理#{}时，会将SQL中的#{}替换为?号，使用PreparedStatement的set方法来赋值；MyBatis在处理 $ { } 时，就是把 ${ } 替换成变量的值。
+> 3）使用 #{} 可以有效的防止SQL注入，提高系统安全性。
+
+> 要理解记忆这个题目,我觉得要抓住两点：
+>
+> 1）\$ 符号一般用来当作占位符，常使用Linux脚本的同学应该对此有更深的体会吧。既然是占位符，当然就是被用来替换的。知道了这点就能很容易区分$和#，从而不容易记错了。
+>
+> 2）预编译的机制。预编译是提前对SQL语句进行预编译，而其后注入的参数将不会再进行SQL编译。我们知道，SQL注入是发生在编译的过程中，因为恶意注入了某些特殊字符，最后被编译成了恶意的执行操作。而预编译机制则可以很好的防止SQL注入。在某些特殊场合下只能用\${}，不能用#{}。例如：在使用排序时ORDER BY \${id}，如果使用#{id}，则会被解析成ORDER BY “id”,这显然是一种错误的写法。
+
+
+# 9、Lombok
+
+> Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your java.
+> Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more.
+
+- java library
+- plugs
+- build tools
+- with one annotation your class
+
+### 9.1、使用步骤
+
+1. 在IDEA中安装Lombok插件！
+
+2. 在项目中导入Lombok的jar包
+
+   ```xml
+   <dependencies>
+   	<dependency>
+   		<groupId>org.projectlombok</groupId>
+   		<artifactId>lombok</artifactId>
+   		<version>1.18.22</version>
+   		<scope>provided</scope>
+   	</dependency>
+   </dependencies>
+   ```
+
+3. 在实体类上加注解即可！
+
+    ```java
+    @Data //get、set、toString、hashcode、equals
+    @AllArgsConstructor //有参构造
+    @NoArgsConstructor //无参构造
+    public class User {
+        private int id;
+        private String name;
+        private String password;
+    }
+    ```
+    ![image-20220102212254813](Mybatis课堂记录.assets/image-20220102212254813.png)
+    
+4. 其他类型的注解：
+
+    ```java
+    @NonNull
+    @Getter/@Setter
+    @ToString
+    @EqualsAndHashCode
+    @NoArgsConstructor/@RequiredArgsConstructor /@AllArgsConstructor
+    @Data
+    @ValueL
+    @Log
+    ```
+
+
+### 9.2、Lombok的优缺点
+
+优点: 
+
+1. 能通过注解的形式自动生成构造器、getter/setter, equals, hashcode, toString等方法,提高了一定的开发效率
+2. 让代码变得简洁,不用过多的去关注相应的方法
+3. 属性做修改时,也简化了维护为这些属性所生成的getter/setter方法等
+
+
+缺点：
+
+1. 不支持多种参数构造器的重载
+2. 虽然省去了手动创建getter/setter方法的麻烦,但大大降低了源代码的可读性和完整性,降低了阅读源代码的舒适度
+
+
+> 知乎上有位大神发表过对Lombok的一些看法:
+>
+> 这是一种低级趣味的插件,不建议使用。JAVA发展到今天,各种插件层出不穷,如何甄别各种插件的优劣?能从架构上优化你的设计的,能提高应用程序性能的,实现高度封装可扩展的…，像Lombok这种,像这种插件,已经不仅仅是插件了,改变了你如何编写源码,事实上,少去了的代码你写上去又如何？如果JAVA家族到处充斥这样的东西,那只不过是一坨披着金属颜色的屎,迟早会被其它的语言取代。
+
+
+虽然话糙但理确实不糙,试想一个项目有非常多类似 Lombok 这样的插件,个人觉得真的会极大的降低阅读源代码的舒适度。虽然非常不建议在属性的 getter/setter 写一些业务代码,但在多年项目的实战中,有时通过给 getter/setter 加一点点业务代码,能极大的简化某些业务场景的代码。所谓取舍,也许就是这时的舍弃一定的规范,取得极大的方便。
+
+我现在非常坚信一条理念,任何编程语言或插件,都仅仅只是工具而已,即使工具再强大也在于用的人,就如同小米加步枪照样能赢飞机大炮的道理一样。结合具体业务场景和项目实际情况,无需一味追求高大上的技术,适合的才是王道。
+
+Lombok有它的得天独厚的优点,也有它避之不及的缺点,熟知其优缺点,在实战中灵活运用才是王道。
+
+
+
+# 10、 多对一处理
+
+多对一：
+
+- 多个学生，对应一个老师
+- 对于学生这边而言，**关联** .. 多个学生，关联一个老师 【多对一】
+- 对于老师而言，**集合**，一个老师，有很多学生 【一对多】
+
+SQL: 
+
+```sql
+CREATE TABLE `teacher` (
+  `id` INT(10) NOT NULL,
+  `name` VARCHAR(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+INSERT INTO teacher(`id`, `name`) VALUES (1, '秦老师'); 
+
+CREATE TABLE `student` (
+  `id` INT(10) NOT NULL,
+  `name` VARCHAR(30) DEFAULT NULL,
+  `tid` INT(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fktid` (`tid`),
+  CONSTRAINT `fktid` FOREIGN KEY (`tid`) REFERENCES `teacher` (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('1', '小明', '1'); 
+INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('2', '小红', '1'); 
+INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('3', '小张', '1'); 
+INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('4', '小李', '1'); 
+INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
+```
+
+![image-20220102220228194](Mybatis课堂记录.assets/image-20220102220228194.png)
