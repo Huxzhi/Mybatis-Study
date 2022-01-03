@@ -29,5 +29,8 @@
         </environment>
 
     </environments>
-
+    <mappers>
+        <mapper class="com.kuang.dao.TeacherMapper"/>
+        <mapper class="com.kuang.dao.StudentMapper"/>
+    </mappers>
 </configuration>

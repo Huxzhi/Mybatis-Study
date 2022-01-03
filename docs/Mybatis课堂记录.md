@@ -1325,3 +1325,71 @@ INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
 ```
 
 ![image-20220102220228194](Mybatis课堂记录.assets/image-20220102220228194.png)
+
+### 10.1、测试环境搭建
+
+1. 导入lombok
+2. 新建实体类Teacher，Student
+3. 建立Mapper接口
+4. 建立Mapper.xml文件
+5. 在核心配置文件中绑定注册我们的Mapper接口或者文件！【方式很多，随心选】
+6. 测试查询是否能成功！
+
+
+
+### 10.2、按照查询嵌套处理
+
+```Xml
+<!--
+思路：
+    1. 查询所有的学生信息
+    2. 根据查询出来的学生的tid，寻找对应的老师，子查询
+-->
+<select id="getStudent" resultMap="StudentTeacher">
+    select *
+    from student;
+</select>
+<resultMap id="StudentTeacher" type="Student">
+    <result property="id" column="id"/>
+    <result property="name" column="name"/>
+    <!--复杂的属性，我们需要单独处理 对象：association 集合：collection -->
+    <association property="teacher" column="tid" javaType="Teacher" select="getTeacher"/>
+</resultMap>
+
+<select id="getTeacher" resultType="Teacher">
+    select *
+    from teacher
+    where id = #{id}
+</select>
+```
+
+
+
+### 10.2、按照结果嵌套处理
+
+```xml
+<!--按照结果嵌套处理-->
+<select id="getStudent2" resultMap="StudentTeacher2">
+    select s.id sid, s.name sname, t.name tname
+    from student s,
+         teacher t
+    where s.tid = t.id;
+</select>
+<resultMap id="StudentTeacher2" type="Student">
+    <result property="id" column="sid"/>
+    <result property="name" column="sname"/>
+    <association property="teacher" javaType="Teacher">
+        <result property="name" column="tname"/>
+    </association>
+</resultMap>
+```
+
+
+
+回顾Mysql多对一查询方式：
+
+- 子查询
+- 联表查询
+
+
+
