@@ -610,12 +610,13 @@ public class Author {
 
 这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。 下表描述了设置中各项设置的含义、默认值等。
 
-| 设置名             | 描述                                                         | 有效值                                                       | 默认值 |
-| :----------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----- |
-| cacheEnabled       | 全局性地开启或关闭所有映射器配置文件中已配置的任何缓存。     | true \| false                                                | true   |
-| lazyLoadingEnabled | 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 `fetchType` 属性来覆盖该项的开关状态。 | true \| false                                                | false  |
-| useGeneratedKeys   | 允许 JDBC 支持自动生成主键，需要数据库驱动支持。如果设置为 true，将强制使用自动生成主键。尽管一些数据库驱动不支持此特性，但仍可正常工作（如 Derby）。 | true \| false                                                | False  |
-| logImpl            | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。        | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | 未设置 |
+| 设置名                   | 描述                                                         | 有效值                                                       | 默认值 |
+| :----------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----- |
+| cacheEnabled             | 全局性地开启或关闭所有映射器配置文件中已配置的任何缓存。     | true \| false                                                | true   |
+| lazyLoadingEnabled       | 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 `fetchType` 属性来覆盖该项的开关状态。 | true \| false                                                | false  |
+| useGeneratedKeys         | 允许 JDBC 支持自动生成主键，需要数据库驱动支持。如果设置为 true，将强制使用自动生成主键。尽管一些数据库驱动不支持此特性，但仍可正常工作（如 Derby）。 | true \| false                                                | False  |
+| logImpl                  | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。        | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | 未设置 |
+| mapUnderscoreToCamelCase | 是否开启驼峰命名自动映射，即从经典数据库列名 A_COLUMN 映射到经典 Java 属性名 aColumn。 | true \| false                                                | False  |
 
 > 2021年12月初 爆发 log4j2 Jndi RCE CVE-2021-44228漏洞，阿里云发现阿帕奇（Apache）Log4j2组件严重安全漏洞隐患后，未及时向电信主管部门报告，未有效支撑工信部开展网络安全威胁和漏洞管理，经研究，工信部网络安全管理局决定暂停阿里云作为工信部网络安全威胁信息共享平台合作单位6个月。
 
@@ -1485,7 +1486,7 @@ INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
 3. javaType  &  ofType
  1. JavaType用来指定实体类中属性的类型
  2. ofType 用来指定映射到List或者集合中的 pojo 类型，泛型中的约束类型！
- 
+
 
 
 
@@ -1505,3 +1506,333 @@ INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
 -  InnoDB底层原理
 - 索引
 - 索引优化！
+
+
+
+# 12、动态SQL
+
+==**什么是动态SQL：动态SQL就是指根据不同的条件生成不同的SQL语句**==
+
+利用动态 SQL，可以彻底摆脱这种痛苦。
+
+> 如果你之前用过 JSTL 或任何基于类 XML 语言的文本处理器，你对动态 SQL 元素可能会感觉似曾相识。在 MyBatis 之前的版本中，需要花时间了解大量的元素。借助功能强大的基于 OGNL 的表达式，MyBatis 3 替换了之前的大部分元素，大大精简了元素种类，现在要学习的元素种类比原来的一半还要少。
+>
+> - if
+> - choose (when, otherwise)
+> - trim (where, set)
+> - foreach
+
+### 12.1、搭建环境
+
+```sql
+CREATE TABLE `blog`(
+  `id` VARCHAR(50) NOT NULL COMMENT '博客id',
+  `title` VARCHAR(100) NOT NULL COMMENT '博客标题',
+  `author` VARCHAR(30) NOT NULL COMMENT '博客作者',
+  `create_time` DATETIME NOT NULL COMMENT '创建时间',
+  `views` INT(30) NOT NULL COMMENT '浏览量'
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
+```
+
+创建一个基础工程
+
+1. 导包
+
+2. 编写配置文件
+
+3. 编写实体类
+
+   ```java
+   @Data
+   public class Blog {
+       private String id;
+       private String title;
+       private String author;
+       private Date createTime;    //属性名和字段名不一致，
+       private int views;
+   }
+   ```
+
+   > 在核心配置文件中，配置 `<setting name="mapUnderscoreToCamelCase" value="true"/>` 是否开启驼峰命名自动映射，即从经典数据库列名 A_COLUMN 映射到经典 Java 属性名 aColumn。
+
+4. 编写实体类对应Mapper接口和Mapper.XML文件
+
+
+
+### 12.2、if
+
+```xml
+<select id="queryBlogIF" parameterType="map" resultType="Blog">
+    select * from mybatis.blog where 1=1
+    <if test="title != null">
+        and title = #{title}
+    </if>
+    <if test="author != null">
+        and author = #{author}
+    </if>
+</select>
+```
+
+### 12.3、choose、when、otherwise
+
+有时候，我们不想使用所有的条件，而只是想从多个条件中选择一个使用。针对这种情况，MyBatis 提供了 choose 元素，它有点像 Java 中的 switch 语句。
+
+还是上面的例子，但是策略变为：传入了 “title” 就按 “title” 查找，传入了 “author” 就按 “author” 查找的情形。若两者都没有传入，就返回标记为 featured 的 BLOG（这可能是管理员认为，与其返回大量的无意义随机 Blog，还不如返回一些由管理员精选的 Blog）。
+
+```xml
+<select id="queryBlogChoose" parameterType="map" resultType="Blog">
+    select * from mybatis.blog
+    <where>
+        <choose>
+            <when test="title !=null">
+                title=#{title}
+            </when>
+            <when test="author != null">
+                and author=#{author}
+            </when>
+            <otherwise>
+                and views=#{views}
+            </otherwise>
+        </choose>
+    </where>
+</select>
+```
+
+ 只要满足第一个条件，就不管其他条件了
+
+
+
+### 12.4、trim、where、set
+
+```xml
+<select id="queryBlogChoose" parameterType="map" resultType="Blog">
+    select *
+    from mybatis.blog
+    <where>
+        <if test="title != null">
+            title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </where>
+</select>
+```
+
+*where* 元素只会在子元素返回任何内容的情况下才插入 “WHERE” 子句。而且，若子句的开头为 “AND” 或 “OR”，*where* 元素也会将它们去除。
+
+
+
+用于动态更新语句的类似解决方案叫做 *set*。*set* 元素可以用于动态包含需要更新的列，忽略其它不更新的列。比如：
+
+```xml
+<update id="updateBlog" parameterType="map">
+    update mybatis.blog
+    <set>
+        <if test="title !=null">
+            title=#{title},
+        </if>
+        <if test="author !=null">
+            author=#{author},
+        </if>
+    </set>
+    where id=#{id}
+</update>
+```
+
+这个例子中，*set* 元素会动态地在行首插入 SET 关键字，并会删掉额外的逗号（这些逗号是在使用条件语句给列赋值时引入的）。
+
+
+
+如果 *where* 元素与你期望的不太一样，你也可以通过自定义 trim 元素来定制 *where* 元素的功能。比如，和 *where* 元素等价的自定义 trim 元素为：
+
+```xml
+<trim prefix="WHERE" prefixOverrides="AND |OR ">
+  ...
+</trim>
+```
+
+*prefixOverrides* 属性会忽略通过管道符分隔的文本序列（注意此例中的空格是必要的）。上述例子会移除所有 *prefixOverrides* 属性中指定的内容，并且插入 *prefix* 属性中指定的内容。
+
+
+
+==**所谓的动态SQL,本质还是SQL语句,只是我们可以在SQL层面,去执行一个逻辑代码**==
+
+
+
+### 12.5、SQL片段
+
+有的时候，我们可能会将一些功能的部分抽取出来,方便复用！
+
+1. 使用SQL标签抽取公共部分
+
+   ```xml
+   <sql id="if-title-author">
+       <if test="title != null">
+           title = #{title}
+       </if>
+       <if test="author != null">
+           and author = #{author}
+       </if>
+   </sql>
+   ```
+
+2. 在需要使用的地方使用Include标签引用即可
+
+   ```xml
+   <select id="queryBlogIF" parameterType="map" resultType="Blog">
+       select * from mybatis.blog
+       <where>
+           <include refid="if-title-author"></include>
+       </where>
+   </select>
+   ```
+
+
+
+注意事项：
+
+- 最好基于单表来定义SQL片段
+- **不要存在where标签**
+
+### 12.6、foreach
+
+- 用 or 来进行分割
+
+```xml
+<!--
+	select * from blog where 1=1 and (id=1 or id =2 or id =3)
+
+	我们现在传递一个万能的Map，这map中可以存在一个集合！
+-->
+<select id="queryBlogForeach" parameterType="map" resultType="blog">
+        select * from blog
+        <where>
+            <foreach collection="ids" item="id" open="and (" close=")" separator="or">
+                id=#{id}
+            </foreach>
+        </where>
+    </select>
+```
+
+
+- 构建 IN 条件语句
+
+> 动态 SQL 的另一个常见使用场景是对集合进行遍历（尤其是在构建 IN 条件语句的时候）。比如：
+>
+> ```xml
+> <select id="selectPostIn" resultType="domain.blog.Post">
+>   SELECT *
+>   FROM POST P
+>   <where>
+>     <foreach item="item" index="index" collection="list"
+>         open="ID in (" separator="," close=")" nullable="true">
+>           #{item}
+>     </foreach>
+>   </where>
+> </select>
+> ```
+>
+> *foreach* 元素的功能非常强大，它允许你指定一个集合，声明可以在元素体内使用的集合项（item）和索引（index）变量。它也允许你指定开头与结尾的字符串以及集合项迭代之间的分隔符。这个元素也不会错误地添加多余的分隔符，看它多智能！
+>
+> **提示** 你可以将任何可迭代对象（如 List、Set 等）、Map 对象或者数组对象作为集合参数传递给 *foreach*。当使用可迭代对象或者数组时，index 是当前迭代的序号，item 的值是本次迭代获取到的元素。当使用 Map 对象（或者 Map.Entry 对象的集合）时，index 是键，item 是值。
+
+
+数据库内容
+
+|id| title| author| create_time| views|
+| ---- | ---- | ---- | ---- | ---- |
+|1| Mybatis如此简单| 狂神说| 2022-01-04 06:16:19| 9999|
+|2| Java如此简单01| 狂神说| 2022-01-04 06:16:19| 1000|
+|3| Spring如此简单| 狂神说| 2022-01-04 06:16:19| 9999|
+|4| 微服务如此简单| 狂神说| 2022-01-04 06:16:19| 9999|
+
+
+
+==动态SQL就是在拼接SQL语句,我们只要保证SQL的正确性,按照SQL的格式,去排列组合就可以了==
+
+建议:
+
+- 先在Mysql中写出完整的SQL,再对应的去修改成为我们的动态SQL实现通用即可!
+
+
+
+
+# 13、缓存
+
+### 13.1、简介
+
+```
+查询: 连接数据库,耗资源! 
+		一次查询的结果,给他暂存在一个可以直接取到的地方!-->内存:缓存
+		
+我们再次查询相同数据的时候,直接走缓存,就不用走数据库了
+```
+
+
+
+1. 什么是缓存 [Cache] ?
+   - 存在内存中的临时数据。
+   - 将用户经常查询的数据放在缓存(内存)中,用户去查询数据就不用从磁盘上(关系型数据库数据文件查
+     询,从缓存中查询,从而提高查询效率,解决了高并发系统的性能问题。
+   - 读写问题（并发），读写分离，主从复制
+   - ![image-20220105122040914](Mybatis课堂记录.assets/image-20220105122040914.png)
+2. 为什么使用缓存?
+   - 减少和数据库的交互次数,减少系统开销,提高系统效率。
+3. 什么样的数据能使用缓存?
+   - 经常查询并且不经常改变的数据。
+
+
+
+### 13.2、Mybatis缓存
+
+- MyBatis包含一个非常强大的查询缓存特性,它可以非常方便地定制和配置缓存。缓存可以极大的提升查询效率。
+- MyBatis系统中默认定义了两级缓存: **一级缓存**和**二级缓存**
+  - 默认情况下,只有一级缓存开启。(SqlISession级别的缓存,也称为本地缓存)
+  - 二级缓存需要手动开启和配置,他是基于namespace级别的缓存。（对应mapper）
+  - 为了提高扩展性, MyBatis定义了缓存接口Cache,我们可以通过实现Cache接口来自定义二级缓存
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 练习: 24道练习题实战!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
