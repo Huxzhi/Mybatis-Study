@@ -21,7 +21,7 @@
 设置连接时建议增加 `useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8` 参数
 
 
-## 使用 mybatis-03，mybatis-04，mybatis-05 说明
+## 使用 mybatis-03～09 说明
 
 缺少`db.properties`文件
 
@@ -33,3 +33,4 @@ username=root
 password=123456
 ```
 
+### 完结撒花🎉🎉🎉
